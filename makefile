@@ -1,6 +1,6 @@
 .PHONY: clean all
 
-all: hello world
+all: main
 	echo "all done"
 
 hello: main.o message.o
