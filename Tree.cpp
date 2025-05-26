@@ -1,57 +1,59 @@
 #include "Tree.h"
-#include<stack>
+#include <stack>
 using namespace std;
 
 void BTree::CreateBTree(string str)
 {
-    stack<BTNode*> st;
-    BTNode* p;
+    stack<BTNode *> st;
+    BTNode *p;
     bool flag;
     int i = 0;
-    while(i<str.length())
+    while (i < str.length())
     {
-        switch(str[i])
+        switch (str[i])
         {
-            case '(':
-                st.push(p);
-                flag = true;
-                break;
-            case ')':
-                st.pop();
-                break;
-            case ',':
-                flag = false;
-                break;
-            default:
-                p = new BTNode(str[i]);
-                if(r == NULL){
-                    r = p;
-                }
-                else{
-                    if(flag && !st.empty())
-                        st.top()->lchild = p;
-                    else if(!st.empty())
-                        st.top()->rchild = p;
-                }
-                break;
+        case '(':
+            st.push(p);
+            flag = true;
+            break;
+        case ')':
+            st.pop();
+            break;
+        case ',':
+            flag = false;
+            break;
+        default:
+            p = new BTNode(str[i]);
+            if (r == NULL)
+            {
+                r = p;
+            }
+            else
+            {
+                if (flag && !st.empty())
+                    st.top()->lchild = p;
+                else if (!st.empty())
+                    st.top()->rchild = p;
+            }
+            break;
         }
         i++;
     }
 }
 
-void BTree::DispBTree1(BTNode* b)
+void BTree::DispBTree1(BTNode *b)
 {
-    if(b!=NULL)
+    if (b != NULL)
     {
-        cout<< b->data;
-        if(b->lchild!=NULL || b->rchild != NULL)
+        cout << b->data;
+        if (b->lchild != NULL || b->rchild != NULL)
         {
-            cout<<"(";
+            cout << "(";
             DispBTree1(b->lchild);
-            if(b->rchild != nullptr)
-                cout<<",";
+            if (b->rchild != nullptr)
+                cout << ",";
             DispBTree1(b->rchild);
-            cout<<")";
+            cout << ")";
         }
     }
 }
@@ -59,4 +61,175 @@ void BTree::DispBTree1(BTNode* b)
 void BTree::DispBTree()
 {
     DispBTree1(r);
+}
+
+int BTree::NodeCount11(BTNode *b)
+{
+    int m, n, k;
+    k = 1;
+    m = NodeCount11(b->lchild);
+    n = NodeCount11(b->rchild);
+    return m + n + k;
+}
+
+int BTree::NodeCount1()
+{
+    NodeCount11(r);
+}
+
+int BTree::NodeCount41(BTNode *b)
+{
+    if (b == nullptr)
+        return 0;
+    else
+        return NodeCount41(b->lchild) + NodeCount41(b->rchild) + 1;
+}
+
+int BTree::NodeCount4()
+{
+    NodeCount41(r);
+}
+
+void BTree::DispLeaf11(BTNode *b)
+{
+    if (b != nullptr)
+    {
+        if (b->lchild == nullptr && b->rchild == nullptr)
+            cout << b->data << " ";
+        DispLeaf11(b->lchild);
+        DispLeaf11(b->rchild);
+    }
+}
+
+void BTree::DispLeaf1()
+{
+    DispLeaf11(r);
+}
+
+void BTree::Swap11(BTNode *&b)
+{
+    if (b != nullptr)
+    {
+        swap(b->lchild, b->rchild);
+        Swap11(b->lchild);
+        Swap11(b->rchild);
+    }
+}
+
+void BTree::Swap1(BTree &bt)
+{
+    Swap11(bt.r);
+}
+
+int BTree::Level1(BTNode *b, char x, int h)
+{
+    if (b == nullptr)
+        return 0;
+    else if (b->data == x)
+        return h;
+    else
+    {
+        int l = Level1(b->lchild, x, h + 1); // 在左子树中查找
+        if (l != 0)
+            return l;
+        else
+            return Level1(b->rchild, x, h + 1); // 在右子树中查找
+    }
+}
+
+int BTree::Level(BTree &bt, char x)
+{
+    Level1(bt.r, x, 1);
+}
+
+void BTree::KCount1(BTNode *b, int h, int k, int &cnt)
+{
+    if (b == nullptr)
+        return;
+    if (h == k)
+        cnt++;
+    if (h < k)
+    {
+        KCount1(b->lchild, h + 1, k, cnt);
+        KCount1(b->rchild, h + 1, k, cnt);
+    }
+}
+
+int BTree::KCount(BTree &bt, int k)
+{
+    int cnt = 0;
+    KCount1(bt.r, 1, k, cnt);
+    return cnt;
+}
+
+bool BTree::Ancestor11(BTNode *b, char x, vector<char> &res)
+{
+    if (b == NULL)
+        return false;
+    if (b->lchild != nullptr && b->lchild->data == x)
+    {
+        res.push_back(b->data);
+        return true;
+    }
+    if (b->rchild != nullptr && b->rchild->data == x)
+    {
+        res.push_back(b->data);
+        return true;
+    }
+    if (Ancestor11(b->lchild, x, res) || Ancestor11(b->rchild, x, res))
+    {
+        res.push_back(b->data);
+        return true;
+    }
+    return false;
+}
+
+void BTree::Ancestor1(BTree &bt, char x, vector<char> &res)
+{
+    Ancestor11(bt.r, x, res);
+    reverse(res.begin(), res.end());
+}
+
+bool BTree::Ancestor21(BTNode *b, char x, vector<char> path, vector<char> &res)
+{
+    if (b == nullptr)
+        return;
+    path.push_back(b->data);
+    if (b->data == x)
+    {
+        path.pop_back();
+        res = path;
+        return;
+    }
+    Ancestor21(b->lchild, x, path, res);
+    Ancestor21(b->rchild, x, path, res);
+}
+
+void BTree::Ancestor2(BTree &bt, char x, vector<char> &res)
+{
+    vector<char> path;
+    Ancestor21(bt.r, x, path, res);
+}
+
+bool BTree::Ancestor31(BTNode *b, char x, vector<char> path, vector<char> &res)
+{
+    if (b == nullptr)
+        return false;
+    path.push_back(b->data);
+    if (b->data == x)
+    {
+        path.pop_back();
+        res = path;
+        return true;
+    }
+    if (Ancestor31(b->lchild, x, path, res))
+        return true;
+    else
+        return Ancestor31(b->rchild, x, path, res);
+}
+
+void BTree::Ancestor3(BTree &bt, char x, vector<char> &res)
+{
+    vector<char> path;
+    Ancestor31(bt.r, x, path, res);
 }
