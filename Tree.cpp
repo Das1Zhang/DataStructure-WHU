@@ -233,3 +233,96 @@ void BTree::Ancestor3(BTree &bt, char x, vector<char> &res)
     vector<char> path;
     Ancestor31(bt.r, x, path, res);
 }
+
+void BTree::LevelOrder(BTree& bt)
+{
+    BTNode* p;
+    queue<BTNode*> qu;
+    qu.push(bt.r);
+    while(!qu.empty())
+    {
+        p = qu.front(); qu.pop();
+        cout<<p->data;
+        if(p->lchild != nullptr)
+            qu.push(p->lchild);
+        if(p->rchild != nullptr)
+            qu.push(p->rchild);
+    }
+}
+
+int BTree::KCount1(BTree& bt, int k)
+{
+    int cnt = 0;
+    queue<QNode> qu;
+    qu.push(QNode(1, bt.r));
+    while(!qu.empty())
+    {
+        QNode p = qu.front(); qu.pop();
+        if(p.lev > k)
+            return cnt;
+        if(p.lev == k)
+            cnt++;
+        else{
+            if(p.node->lchild != NULL)
+                qu.push(QNode(p.lev+1, p.node->lchild));
+            if(p.node->rchild != nullptr)
+                qu.push(QNode(p.lev+1, p.node->rchild));
+        }
+    }
+}
+
+int BTree::KCount2(BTree& bt, int k)
+{
+    int cnt = 0;
+    queue<BTNode*> qu;
+    int curl = 1;
+    BTNode* last = bt.r, *p, *q;
+    qu.push(bt.r);
+    while(!qu.empty())
+    {
+        if(curl > k)
+            return cnt;
+        p = qu.front(); qu.pop();
+        if(curl == k)
+            cnt++;
+        if(p->lchild != nullptr)
+        {
+            q = p->lchild;
+            qu.push(q);
+        }
+        if(p->rchild != nullptr)
+        {
+            q = p->rchild;
+            qu.push(q);
+        }
+        if(p == last)
+        {
+            last = q;
+            curl++;
+        }
+    }
+}
+
+int BTree::KCount3(BTree& bt,int k)
+{
+    if(k<1) return 0;
+    queue<BTNode*> qu;
+    int curl = 1;
+    qu.push(bt.r);
+    while(!qu.empty())
+    {
+        if(curl == k)
+            return qu.size();
+        int n = qu.size();
+        for(int i = 0;i<n;i++)
+        {
+            BTNode* p = qu.front();qu.pop();
+            if(p->lchild != nullptr)
+                qu.push(p->lchild);
+            if(p->rchild != nullptr)
+                qu.push(p->rchild);
+        }
+        curl++;
+    }
+    return 0;
+}

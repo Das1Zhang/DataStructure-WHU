@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-
+#include <queue>
 using namespace std;
 
 struct BTNode
@@ -64,4 +64,20 @@ public:
     void Ancestor3(BTree &bt, char x, vector<char> &res);
 
     // 层次遍历
+    void LevelOrder(BTree& bt);
+
+    // 使用层次遍历来统计第k层的节点个数
+    struct QNode
+    {
+        int lev;
+        BTNode* node;
+        QNode(int l,BTNode* p)
+        {
+            lev = l;
+            node = p;
+        }
+    };
+    int KCount1(BTree& bt,int k);   //每次加入孩子节点时，增加高度
+    int KCount2(BTree& bt, int k);  //通过记录下一层的最后一个节点，来实现对高度的更新
+    int KCount3(BTree& bt, int k);  // 一层一层的遍历，因为我们不需要寻找到某个特定节点
 };
