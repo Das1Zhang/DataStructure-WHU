@@ -64,20 +64,38 @@ public:
     void Ancestor3(BTree &bt, char x, vector<char> &res);
 
     // 层次遍历
-    void LevelOrder(BTree& bt);
+    void LevelOrder(BTree &bt);
 
     // 使用层次遍历来统计第k层的节点个数
     struct QNode
     {
         int lev;
-        BTNode* node;
-        QNode(int l,BTNode* p)
+        BTNode *node;
+        QNode(int l, BTNode *p)
         {
             lev = l;
             node = p;
         }
     };
-    int KCount1(BTree& bt,int k);   //每次加入孩子节点时，增加高度
-    int KCount2(BTree& bt, int k);  //通过记录下一层的最后一个节点，来实现对高度的更新
-    int KCount3(BTree& bt, int k);  // 一层一层的遍历，因为我们不需要寻找到某个特定节点
+    int KCount1(BTree &bt, int k); // 每次加入孩子节点时，增加高度
+    int KCount2(BTree &bt, int k); // 通过记录下一层的最后一个节点，来实现对高度的更新
+    int KCount3(BTree &bt, int k); // 一层一层的遍历，因为我们不需要寻找到某个特定节点
+
+    // 根据先序&中序序列构造二叉树
+    // 先序：根->左子树->右子树 ， 中序：左子树->根->右子树
+    BTNode *CreateBTree11(vector<char> pres, int i, vector<char> ins, int j, int n);
+
+    void CreateBTree1(BTree &bt, vector<char> pres, vector<char> ins);
+
+    // 后序：左子树->右子树->根， 中序：左子树->根->右子树
+    // k -> n-k-1 -> 1
+    BTNode *CreateBTree21(vector<char> posts, int i, vector<char> ins, int j, int n);
+    void CreateBTree2(BTree &bt, vector<char> posts, vector<char> ins);
+
+    // 序列化和反序列化
+    // 序列化需要记录空节点，记录为'#'
+    string PreOrderSeq1(BTNode *b);
+    string PreOrderSeq(BTree &b);
+    BTNode *CreateBTree31(string s, int &i);
+    void CreateBTree3(BTree &bt, string s);
 };

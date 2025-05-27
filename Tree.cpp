@@ -234,68 +234,72 @@ void BTree::Ancestor3(BTree &bt, char x, vector<char> &res)
     Ancestor31(bt.r, x, path, res);
 }
 
-void BTree::LevelOrder(BTree& bt)
+void BTree::LevelOrder(BTree &bt)
 {
-    BTNode* p;
-    queue<BTNode*> qu;
+    BTNode *p;
+    queue<BTNode *> qu;
     qu.push(bt.r);
-    while(!qu.empty())
+    while (!qu.empty())
     {
-        p = qu.front(); qu.pop();
-        cout<<p->data;
-        if(p->lchild != nullptr)
+        p = qu.front();
+        qu.pop();
+        cout << p->data;
+        if (p->lchild != nullptr)
             qu.push(p->lchild);
-        if(p->rchild != nullptr)
+        if (p->rchild != nullptr)
             qu.push(p->rchild);
     }
 }
 
-int BTree::KCount1(BTree& bt, int k)
+int BTree::KCount1(BTree &bt, int k)
 {
     int cnt = 0;
     queue<QNode> qu;
     qu.push(QNode(1, bt.r));
-    while(!qu.empty())
+    while (!qu.empty())
     {
-        QNode p = qu.front(); qu.pop();
-        if(p.lev > k)
+        QNode p = qu.front();
+        qu.pop();
+        if (p.lev > k)
             return cnt;
-        if(p.lev == k)
+        if (p.lev == k)
             cnt++;
-        else{
-            if(p.node->lchild != NULL)
-                qu.push(QNode(p.lev+1, p.node->lchild));
-            if(p.node->rchild != nullptr)
-                qu.push(QNode(p.lev+1, p.node->rchild));
+        else
+        {
+            if (p.node->lchild != NULL)
+                qu.push(QNode(p.lev + 1, p.node->lchild));
+            if (p.node->rchild != nullptr)
+                qu.push(QNode(p.lev + 1, p.node->rchild));
         }
     }
 }
 
-int BTree::KCount2(BTree& bt, int k)
+int BTree::KCount2(BTree &bt, int k)
 {
     int cnt = 0;
-    queue<BTNode*> qu;
+    queue<BTNode *> qu;
     int curl = 1;
-    BTNode* last = bt.r, *p, *q;
+    BTNode *last = bt.r, *p, *q;
     qu.push(bt.r);
-    while(!qu.empty())
+    while (!qu.empty())
     {
-        if(curl > k)
+        if (curl > k)
             return cnt;
-        p = qu.front(); qu.pop();
-        if(curl == k)
+        p = qu.front();
+        qu.pop();
+        if (curl == k)
             cnt++;
-        if(p->lchild != nullptr)
+        if (p->lchild != nullptr)
         {
             q = p->lchild;
             qu.push(q);
         }
-        if(p->rchild != nullptr)
+        if (p->rchild != nullptr)
         {
             q = p->rchild;
             qu.push(q);
         }
-        if(p == last)
+        if (p == last)
         {
             last = q;
             curl++;
@@ -303,26 +307,104 @@ int BTree::KCount2(BTree& bt, int k)
     }
 }
 
-int BTree::KCount3(BTree& bt,int k)
+int BTree::KCount3(BTree &bt, int k)
 {
-    if(k<1) return 0;
-    queue<BTNode*> qu;
+    if (k < 1)
+        return 0;
+    queue<BTNode *> qu;
     int curl = 1;
     qu.push(bt.r);
-    while(!qu.empty())
+    while (!qu.empty())
     {
-        if(curl == k)
+        if (curl == k)
             return qu.size();
         int n = qu.size();
-        for(int i = 0;i<n;i++)
+        for (int i = 0; i < n; i++)
         {
-            BTNode* p = qu.front();qu.pop();
-            if(p->lchild != nullptr)
+            BTNode *p = qu.front();
+            qu.pop();
+            if (p->lchild != nullptr)
                 qu.push(p->lchild);
-            if(p->rchild != nullptr)
+            if (p->rchild != nullptr)
                 qu.push(p->rchild);
         }
         curl++;
     }
     return 0;
+}
+
+BTNode *BTree::CreateBTree11(vector<char> pres, int i, vector<char> ins, int j, int n)
+{
+    if (n <= 0)
+        return nullptr;
+    char d = pres[i];
+    BTNode *b = new BTNode(d);
+    int p = j;
+    while (ins[p] != d)
+        p++;
+    int k = p - j;
+    b->lchild = CreateBTree11(pres, i + 1, ins, j, k);
+    b->rchild = CreateBTree11(pres, i + k + 1, ins, p + 1, n - k - 1);
+    return b;
+}
+
+void BTree::CreateBTree1(BTree &bt, vector<char> pres, vector<char> ins)
+{
+    int n = pres.size();
+    bt.r = CreateBTree11(pres, 0, ins, 0, n);
+}
+
+BTNode *BTree::CreateBTree21(vector<char> posts, int i, vector<char> ins, int j, int n)
+{
+    if (n <= 0)
+        return nullptr;
+    char d = posts[i + n - 1];
+    BTNode *b = new BTNode(d);
+    int p = j;
+    while (ins[p] != d)
+        p++;
+    int k = p - j;
+    b->lchild = CreateBTree21(posts, i, ins, j, k);
+    b->rchild = CreateBTree21(posts, i + k, ins, j, n - k - 1);
+}
+
+void BTree::CreateBTree2(BTree &bt, vector<char> posts, vector<char> ins)
+{
+    int n = posts.size();
+    bt.r = CreateBTree21(posts, 0, ins, 0, n);
+}
+
+string BTree::PreOrderSeq1(BTNode *b)
+{
+    if (b == NULL)
+        return "#";
+    string s(1, b->data);
+    s += PreOrderSeq1(b->lchild);
+    s += PreOrderSeq1(b->rchild);
+    return s;
+}
+
+string BTree::PreOrderSeq(BTree &bt)
+{
+    return PreOrderSeq1(bt.r);
+}
+
+BTNode *BTree::CreateBTree31(string s, int &i)
+{
+    if (i >= s.length())
+        return nullptr;
+    char d = s[i];
+    i++;
+    if (d == '#')
+        return nullptr;
+    BTNode *b = new BTNode(d);
+    b->lchild = CreateBTree31(s, i);
+    b->rchild = CreateBTree31(s, i);
+    return b;
+}
+
+void BTree::CreateBTree3(BTree &bt, string s)
+{
+    int i = 0;
+    bt.r = CreateBTree31(s, i);
 }
