@@ -1,70 +1,149 @@
-#include <iostream>
-#include <map>
-#include <vector>
-#include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
 
-struct ListNode
+struct Node
 {
-	string addr;
-	int data;
-	string next;
+	char key;
+	Node *left, *right;
+	int height;
+	Node(char k) : key(k), left(nullptr), right(nullptr), height(1) {}
 };
 
-void reorderList(map<string, ListNode> &nodes, string head)
+int height(Node *n)
 {
-	vector<ListNode> list;
-	string current = head;
+	return n ? n->height : 0;
+}
 
-	while (current != "-1")
+void updateHeight(Node *n)
+{
+	n->height = 1 + max(height(n->left), height(n->right));
+}
+
+int balanceFactor(Node *n)
+{
+	return height(n->left) - height(n->right);
+}
+
+Node *rotateRight(Node *y)
+{
+	Node *x = y->left;
+	Node *T2 = x->right;
+	x->right = y;
+	y->left = T2;
+	updateHeight(y);
+	updateHeight(x);
+	return x;
+}
+
+Node *rotateLeft(Node *x)
+{
+	Node *y = x->right;
+	Node *T2 = y->left;
+	y->left = x;
+	x->right = T2;
+	updateHeight(x);
+	updateHeight(y);
+	return y;
+}
+
+Node *rebalance(Node *n)
+{
+	updateHeight(n);
+	int bf = balanceFactor(n);
+	if (bf > 1)
 	{
-		list.push_back(nodes[current]);
-		current = nodes[current].next;
+		if (balanceFactor(n->left) < 0)
+			n->left = rotateLeft(n->left);
+		return rotateRight(n);
 	}
-	int n = list.size();
-	int left = 0, right = n - 1;
-	vector<ListNode> reorderedList;
-	while (left <= right)
+	if (bf < -1)
 	{
-		reorderedList.push_back(list[right]);
-		if (left != right)
+		if (balanceFactor(n->right) > 0)
+			n->right = rotateRight(n->right);
+		return rotateLeft(n);
+	}
+	return n;
+}
+
+Node *insertAVL(Node *root, char key)
+{
+	if (!root)
+		return new Node(key);
+	if (key < root->key)
+		root->left = insertAVL(root->left, key);
+	else if (key > root->key)
+		root->right = insertAVL(root->right, key);
+	// duplicates ignored
+	return rebalance(root);
+}
+
+Node *findMin(Node *root)
+{
+	while (root->left)
+		root = root->left;
+	return root;
+}
+
+Node *deleteAVL(Node *root, char key)
+{
+	if (!root)
+		return nullptr;
+	if (key < root->key)
+		root->left = deleteAVL(root->left, key);
+	else if (key > root->key)
+		root->right = deleteAVL(root->right, key);
+	else
+	{
+		if (!root->left || !root->right)
 		{
-			reorderedList.push_back(list[left]);
+			Node *t = root->left ? root->left : root->right;
+			delete root;
+			return t;
 		}
-		left++;
-		right--;
+		else
+		{
+			Node *succ = findMin(root->right);
+			root->key = succ->key;
+			root->right = deleteAVL(root->right, succ->key);
+		}
 	}
+	return rebalance(root);
+}
 
-	for (int i = 0; i < n - 1; i++)
-	{
-		reorderedList[i].next = reorderedList[i + 1].addr;
-	}
-	reorderedList[n - 1].next = "-1";
-
-	for (const auto &node : reorderedList)
-	{
-		cout << node.addr << " " << node.data << " " << node.next << endl;
-	}
+void postOrder(Node *root, string &out)
+{
+	if (!root)
+		return;
+	postOrder(root->left, out);
+	postOrder(root->right, out);
+	out.push_back(root->key);
 }
 
 int main()
 {
-	string head;
-	int n;
-	cin >> head >> n;
-	map<string, ListNode> nodes;
-	for (int i = 0; i < n; i++)
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+
+	int N1;
+	if (!(cin >> N1))
+		return 0;
+	Node *root = nullptr;
+	for (int i = 0; i < N1; i++)
 	{
-		string addr, next;
-		int data;
-		cin >> addr >> data >> next;
-		nodes[addr] = {addr, data, next};
+		char c;
+		cin >> c;
+		root = insertAVL(root, c);
 	}
-
-	reorderList(nodes, head);
-
+	int N2;
+	cin >> N2;
+	for (int i = 0; i < N2; i++)
+	{
+		char c;
+		cin >> c;
+		root = deleteAVL(root, c);
+	}
+	string result;
+	postOrder(root, result);
+	cout << result << "\n";
 	return 0;
 }
-
-// 30 + 20*2 + 16*3 + 22*4
-// 70+48+88 = 118+88 = 206
